@@ -1,8 +1,11 @@
 #[macro_use]
+extern crate failure;
+#[macro_use]
 extern crate structopt;
 
+use failure::Error;
+use std::io;
 use std::io::prelude::*;
-use std::io::{self, Error, ErrorKind};
 use std::process::{self, Command, Stdio};
 use structopt::StructOpt;
 use structopt::clap::AppSettings;
@@ -27,7 +30,7 @@ fn run_command(cmd_and_args: &Vec<String>, stdin: &str) -> Result<(), Error> {
     let cmd = cmd_and_args
         .iter()
         .nth(0)
-        .ok_or(Error::new(ErrorKind::InvalidInput, "command is required"))?;
+        .ok_or(format_err!("command is required"))?;
     let args: Vec<_> = cmd_and_args.iter().skip(1).collect();
 
     let mut child = Command::new(cmd).args(&args).stdin(Stdio::piped()).spawn()?;

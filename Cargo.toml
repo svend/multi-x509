@@ -4,4 +4,5 @@ version = "0.1.0"
 authors = ["Svend Sorensen <svend@svends.net>"]
 
 [dependencies]
+failure = "0.1.1"
 structopt = "0.2"

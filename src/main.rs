@@ -10,8 +10,8 @@ use std::process::{self, Command, Stdio};
 use structopt::StructOpt;
 use structopt::clap::AppSettings;
 
-const BEGIN: &'static str = "-----BEGIN";
-const END: &'static str = "-----END";
+const BEGIN: &str = "-----BEGIN";
+const END: &str = "-----END";
 
 /// Read certificates from stdin and run command on each one.
 #[derive(StructOpt, Debug)]
@@ -26,11 +26,10 @@ struct Opt {
     command: Vec<String>,
 }
 
-fn run_command(cmd_and_args: &Vec<String>, stdin: &str) -> Result<(), Error> {
+fn run_command(cmd_and_args: &[String], stdin: &str) -> Result<(), Error> {
     let cmd = cmd_and_args
-        .iter()
-        .nth(0)
-        .ok_or(format_err!("command is required"))?;
+        .get(0)
+        .ok_or_else(|| format_err!("command is required"))?;
     let args: Vec<_> = cmd_and_args.iter().skip(1).collect();
 
     let mut child = Command::new(cmd).args(&args).stdin(Stdio::piped()).spawn()?;
@@ -40,7 +39,7 @@ fn run_command(cmd_and_args: &Vec<String>, stdin: &str) -> Result<(), Error> {
     Ok(())
 }
 
-fn run(command: &Vec<String>, after: Option<String>) -> Result<(), Error> {
+fn run(command: &[String], after: &Option<String>) -> Result<(), Error> {
     let stdin = io::stdin();
     let mut cert = Vec::new();
 
@@ -62,7 +61,7 @@ fn run(command: &Vec<String>, after: Option<String>) -> Result<(), Error> {
 
 fn main() {
     let opt = Opt::from_args();
-    if let Err(err) = run(&opt.command, opt.after) {
+    if let Err(err) = run(&opt.command, &opt.after) {
         println!("error: {}", err);
         process::exit(1);
     }

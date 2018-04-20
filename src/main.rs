@@ -62,7 +62,7 @@ fn run(command: &[String], after: &Option<String>) -> Result<(), Error> {
 fn main() {
     let opt = Opt::from_args();
     if let Err(err) = run(&opt.command, &opt.after) {
-        println!("error: {}", err);
+        eprintln!("error: {}", err);
         process::exit(1);
     }
 }

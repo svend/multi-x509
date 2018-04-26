@@ -7,8 +7,8 @@ use failure::Error;
 use std::io;
 use std::io::prelude::*;
 use std::process::{self, Command, Stdio};
-use structopt::StructOpt;
 use structopt::clap::AppSettings;
+use structopt::StructOpt;
 
 const BEGIN: &str = "-----BEGIN";
 const END: &str = "-----END";
@@ -44,10 +44,10 @@ fn run(command: &[String], after: &Option<String>) -> Result<(), Error> {
     let mut cert = Vec::new();
 
     for line in stdin.lock().lines() {
-        let l = line?;
-        if l.starts_with(BEGIN) || !cert.is_empty() {
-            cert.push(l.clone());
-            if l.starts_with(END) {
+        let line = line?;
+        if line.starts_with(BEGIN) || !cert.is_empty() {
+            cert.push(line.clone());
+            if line.starts_with(END) {
                 run_command(&command, &format!("{}\n", cert.join("\n")))?;
                 if let Some(after) = after.as_ref() {
                     println!("{}", after);

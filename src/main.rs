@@ -6,7 +6,7 @@ extern crate structopt;
 use failure::Error;
 use std::io;
 use std::io::prelude::*;
-use std::process::{self, Command, Stdio};
+use std::process::{Command, Stdio};
 use structopt::clap::AppSettings;
 use structopt::StructOpt;
 
@@ -39,7 +39,9 @@ fn run_command(cmd_and_args: &[String], stdin: &str) -> Result<(), Error> {
     Ok(())
 }
 
-fn run(command: &[String], after: &Option<String>) -> Result<(), Error> {
+fn run() -> Result<(), Error> {
+    let opt = Opt::from_args();
+
     let stdin = io::stdin();
     let mut cert = Vec::new();
 
@@ -48,8 +50,8 @@ fn run(command: &[String], after: &Option<String>) -> Result<(), Error> {
         if line.starts_with(BEGIN) || !cert.is_empty() {
             cert.push(line.clone());
             if line.starts_with(END) {
-                run_command(&command, &format!("{}\n", cert.join("\n")))?;
-                if let Some(after) = after.as_ref() {
+                run_command(&opt.command, &format!("{}\n", cert.join("\n")))?;
+                if let Some(after) = opt.after.as_ref() {
                     println!("{}", after);
                 }
                 cert.clear();
@@ -60,9 +62,10 @@ fn run(command: &[String], after: &Option<String>) -> Result<(), Error> {
 }
 
 fn main() {
-    let opt = Opt::from_args();
-    if let Err(err) = run(&opt.command, &opt.after) {
-        eprintln!("error: {}", err);
-        process::exit(1);
+    if let Err(err) = run() {
+        for cause in err.causes() {
+            eprintln!("error: {}", cause);
+        }
+        std::process::exit(1);
     }
 }

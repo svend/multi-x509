@@ -15,7 +15,7 @@ const END: &str = "-----END";
 
 /// Read certificates from stdin and run command on each one.
 #[derive(StructOpt, Debug)]
-#[structopt(author = "Svend Sorensen", raw(global_settings = "&[AppSettings::TrailingVarArg]"))]
+#[structopt(raw(global_settings = "&[AppSettings::TrailingVarArg]"))]
 struct Opt {
     /// Text to print after each certificate
     #[structopt(long = "after")]

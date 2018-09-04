@@ -12,9 +12,6 @@ use std::process::{Command, Stdio};
 use structopt::clap::AppSettings;
 use structopt::StructOpt;
 
-const BEGIN: &str = "-----BEGIN";
-const END: &str = "-----END";
-
 /// Read certificates from stdin and run command on each one.
 #[derive(StructOpt, Debug)]
 #[structopt(raw(global_settings = "&[AppSettings::TrailingVarArg]"))]
@@ -42,19 +39,11 @@ fn run_command(cmd_and_args: &[String], stdin: &str) -> Result<(), Error> {
 }
 
 fn run<R: BufRead>(r: R, command: &[String], after: &Option<String>) -> Result<(), Error> {
-    let mut cert = Vec::new();
-
-    for line in r.lines() {
-        let line = line?;
-        if line.starts_with(BEGIN) || !cert.is_empty() {
-            cert.push(line.clone());
-            if line.starts_with(END) {
-                run_command(&command, &format!("{}\n", cert.join("\n")))?;
-                if let Some(after) = after {
-                    println!("{}", after);
-                }
-                cert.clear();
-            }
+    let certs = certs::Certs::new(r);
+    for cert in certs {
+        run_command(&command, &format!("{}\n", &cert))?;
+        if let Some(after) = after {
+            println!("{}", after);
         }
     }
     Ok(())

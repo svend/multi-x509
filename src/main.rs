@@ -5,7 +5,6 @@ extern crate structopt;
 
 use failure::Error;
 use std::io;
-use std::io::BufRead;
 use std::io::prelude::*;
 use std::process::{Command, Stdio};
 use structopt::clap::AppSettings;
@@ -28,9 +27,9 @@ struct Opt {
 }
 
 fn run_command(cmd_and_args: &[String], stdin: &str) -> Result<(), Error> {
-    let cmd = cmd_and_args
-        .get(0)
-        .ok_or_else(|| format_err!("command is required"))?;
+    let cmd = cmd_and_args.get(0).ok_or_else(
+        || format_err!("command is required"),
+    )?;
     let args: Vec<_> = cmd_and_args.iter().skip(1).collect();
 
     let mut child = Command::new(cmd).args(&args).stdin(Stdio::piped()).spawn()?;

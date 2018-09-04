@@ -234,7 +234,7 @@ b8ravHNjkOR/ez4iyz0H7V84dJzjA1BOoa+Y7mHyhD8S
 "#;
 
     #[test]
-    fn it_works() {
+    fn test_certs() {
         let cursor = io::Cursor::new(CERTS);
         let mut certs = Certs::new(cursor);
         assert_eq!(certs.next(), Some(CERT_0.to_string()));

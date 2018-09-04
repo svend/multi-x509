@@ -3,6 +3,8 @@ extern crate failure;
 #[macro_use]
 extern crate structopt;
 
+mod certs;
+
 use failure::Error;
 use std::io;
 use std::io::prelude::*;

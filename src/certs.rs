@@ -3,7 +3,7 @@ use std::io::prelude::*;
 const BEGIN: &str = "-----BEGIN";
 const END: &str = "-----END";
 
-/// An iterator which counts from one to five
+/// An iterator over certificates
 pub struct Certs<R: BufRead> {
     r: R,
     buf: String,
@@ -12,7 +12,7 @@ pub struct Certs<R: BufRead> {
 impl<R: BufRead> Certs<R> {
     pub fn new(r: R) -> Certs<R> {
         Certs {
-            r: r,
+            r,
             buf: String::new(),
         }
     }

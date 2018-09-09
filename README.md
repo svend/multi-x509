@@ -1,5 +1,7 @@
 # multi-x509
 
+[![Build Status](https://travis-ci.org/svend/multi-x509.svg?branch=master)](https://travis-ci.org/svend/multi-x509)
+
 > Run a command against each x509 certificate in the input stream
 
 ## Installation

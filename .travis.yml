@@ -1,9 +1,32 @@
 language: rust
-rust:
-  - stable
-  - beta
-  - nightly
+cache: cargo
+env:
+  global:
+    - PROJECT_NAME=multi-x509
 matrix:
-  allow_failures:
-    - rust: nightly
-  fast_finish: true
+  include:
+    # Stable channel
+    - os: linux
+      rust: stable
+      env: TARGET=i686-unknown-linux-musl
+    - os: osx
+      rust: stable
+      env: TARGET=x86_64-apple-darwin
+    - os: linux
+      rust: stable
+      env: TARGET=x86_64-unknown-linux-musl
+deploy:
+  provider: releases
+  api_key:
+    secure: wlIXYgIcMnw3tsvNoWN6xoQOXc9g4QSsNj/DgQzLWXthVZBo3NZnfO+xuo7VTiivEUGiwqpBO4MnbfLy8JF4cMucGe1Za8sq+jYJkghzu3HuKW7AK0gguTRfeITHAGNuDzxLN4rG6b9SqWCl7rvraemf9RMJ+SdakfwV2XGCz+BKYigt2Pd6Y58nmw6zAKfs1KYxdD+k1A2ZCbNKwmEh8FKnfX4Lwh9SsEZTeqq/yqetVFEVO8+Weyl2tkHvlyblqSgiRbaTg+jgzlIJo2n004N+JZECFsR/7OU0vH+QqZHdY3/gkIL2mQ5ZuU0tMeyVCVE7OVGalSar0/9uFxLiRBkarcgIOAvEKQL4WUG5hNQfssDB+SSQ7ofwnAruw/fodftFZ11tM1nrKtjNLv7Y9eAC5p5puW+BZ1m64DdDEPg4q6t7w+eqGnbK1MyOCmDLbHVni4RJ+cjya5gM/xrpZ4UdQg/pZQi/rTMr0Pks5gLr6m6BBj0IiLvW2+EiCl1i8MfD45jT2nqEtRE+LxnU0fVIoAzEWAhyeX+++TFuWqeShN2KjfVwjoZ5MS3xetrf3MQ2XLP9wMdBQRIHXTpz++3WQhf8vCJxNbkcdXqaseqQLmNcmN9uyd/XX35NfKO06HqFkPcO7bm+DzixrT8TpcG+MYWe49cL8AOiz6e0oxM=
+  file_glob: true
+  file: ${PROJECT_NAME}-${TRAVIS_TAG}-${TARGET}.*
+  # don't delete the artifacts from previous phases
+  skip_cleanup: true
+  # deploy when a new tag is pushed
+  on:
+    # channel to use to produce the release artifacts
+    # NOTE make sure you only release *once* per target
+    # TODO you may want to pick a different channel
+    condition: $TRAVIS_RUST_VERSION = stable
+    tags: true

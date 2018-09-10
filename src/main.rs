@@ -55,7 +55,7 @@ fn main() {
     let stdin = io::stdin();
     let stdin = stdin.lock();
     if let Err(err) = run(stdin, &opt.command, &opt.after) {
-        for cause in err.causes() {
+        for cause in err.iter_chain() {
             eprintln!("error: {}", cause);
         }
         std::process::exit(1);

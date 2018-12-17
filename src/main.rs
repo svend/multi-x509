@@ -1,11 +1,6 @@
-#[macro_use]
-extern crate failure;
-#[macro_use]
-extern crate structopt;
-
 mod certs;
 
-use failure::Error;
+use failure::{format_err, Error};
 use std::io;
 use std::io::prelude::*;
 use std::process::{Command, Stdio};
@@ -26,12 +21,15 @@ struct Opt {
 }
 
 fn run_command(cmd_and_args: &[String], stdin: &str) -> Result<(), Error> {
-    let cmd = cmd_and_args.get(0).ok_or_else(
-        || format_err!("command is required"),
-    )?;
+    let cmd = cmd_and_args
+        .get(0)
+        .ok_or_else(|| format_err!("command is required"))?;
     let args: Vec<_> = cmd_and_args.iter().skip(1).collect();
 
-    let mut child = Command::new(cmd).args(&args).stdin(Stdio::piped()).spawn()?;
+    let mut child = Command::new(cmd)
+        .args(&args)
+        .stdin(Stdio::piped())
+        .spawn()?;
 
     child.stdin.as_mut().unwrap().write_all(stdin.as_bytes())?;
     child.wait()?;

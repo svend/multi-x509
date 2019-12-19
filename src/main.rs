@@ -1,6 +1,6 @@
 mod certs;
 
-use failure::{format_err, Error};
+use anyhow::{anyhow, Result};
 use std::io;
 use std::io::prelude::*;
 use std::process::{Command, Stdio};
@@ -20,23 +20,15 @@ struct Opt {
     command: Vec<String>,
 }
 
-fn run_command(cmd_and_args: &[String], stdin: &str) -> Result<(), Error> {
-    let cmd = cmd_and_args
-        .get(0)
-        .ok_or_else(|| format_err!("command is required"))?;
-    let args: Vec<_> = cmd_and_args.iter().skip(1).collect();
+fn main() -> Result<()> {
+    let opt = Opt::from_args();
 
-    let mut child = Command::new(cmd)
-        .args(&args)
-        .stdin(Stdio::piped())
-        .spawn()?;
-
-    child.stdin.as_mut().unwrap().write_all(stdin.as_bytes())?;
-    child.wait()?;
-    Ok(())
+    let stdin = io::stdin();
+    let stdin = stdin.lock();
+    run(stdin, &opt.command, &opt.after)
 }
 
-fn run<R: BufRead>(r: R, command: &[String], after: &Option<String>) -> Result<(), Error> {
+fn run<R: BufRead>(r: R, command: &[String], after: &Option<String>) -> Result<()> {
     let certs = certs::Certs::new(r);
     for cert in certs {
         run_command(&command, &format!("{}\n", &cert))?;
@@ -47,15 +39,18 @@ fn run<R: BufRead>(r: R, command: &[String], after: &Option<String>) -> Result<(
     Ok(())
 }
 
-fn main() {
-    let opt = Opt::from_args();
+fn run_command(cmd_and_args: &[String], stdin: &str) -> Result<()> {
+    let cmd = cmd_and_args
+        .get(0)
+        .ok_or_else(|| anyhow!("command is required"))?;
+    let args: Vec<_> = cmd_and_args.iter().skip(1).collect();
 
-    let stdin = io::stdin();
-    let stdin = stdin.lock();
-    if let Err(err) = run(stdin, &opt.command, &opt.after) {
-        for cause in err.iter_chain() {
-            eprintln!("error: {}", cause);
-        }
-        std::process::exit(1);
-    }
+    let mut child = Command::new(cmd)
+        .args(&args)
+        .stdin(Stdio::piped())
+        .spawn()?;
+
+    child.stdin.as_mut().unwrap().write_all(stdin.as_bytes())?;
+    child.wait()?;
+    Ok(())
 }

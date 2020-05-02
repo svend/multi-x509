@@ -9,7 +9,7 @@ use structopt::StructOpt;
 
 /// Read certificates from stdin and run command on each one.
 #[derive(StructOpt, Debug)]
-#[structopt(raw(global_settings = "&[AppSettings::TrailingVarArg]"))]
+#[structopt(global_settings = &[AppSettings::TrailingVarArg])]
 struct Opt {
     /// Text to print after each certificate
     #[structopt(long = "after")]

@@ -1,27 +1,26 @@
 mod certs;
 
 use anyhow::{anyhow, Result};
+use clap::{AppSettings, Clap};
 use std::io;
 use std::io::prelude::*;
 use std::process::{Command, Stdio};
-use structopt::clap::AppSettings;
-use structopt::StructOpt;
 
 /// Read certificates from stdin and run command on each one.
-#[derive(StructOpt, Debug)]
-#[structopt(global_settings = &[AppSettings::TrailingVarArg])]
+#[derive(Clap, Debug)]
+#[clap(global_setting = AppSettings::TrailingVarArg)]
 struct Opt {
     /// Text to print after each certificate
-    #[structopt(long = "after")]
+    #[clap(long = "after")]
     after: Option<String>,
 
     /// Command to run on each certificate
-    #[structopt(name = "COMMAND", default_value = "cat")]
+    #[clap(name = "COMMAND", default_value = "cat")]
     command: Vec<String>,
 }
 
 fn main() -> Result<()> {
-    let opt = Opt::from_args();
+    let opt = Opt::parse();
 
     let stdin = io::stdin();
     let stdin = stdin.lock();

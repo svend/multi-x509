@@ -1,7 +1,8 @@
 use std::io::prelude::*;
 
-const BEGIN: &str = "-----BEGIN";
-const END: &str = "-----END";
+// https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail
+const PEM_HEADER: &str = "-----BEGIN CERTIFICATE-----";
+const PEM_FOOTER: &str = "-----END CERTIFICATE-----";
 
 /// An iterator over certificates
 pub struct Certs<R: BufRead> {
@@ -28,9 +29,9 @@ impl<R: BufRead> Iterator for Certs<R> {
             if num_bytes == 0 {
                 break;
             }
-            if line.starts_with(BEGIN) || !self.buf.is_empty() {
+            if line.trim_end() == PEM_HEADER || !self.buf.is_empty() {
                 self.buf.push_str(&line);
-                if line.starts_with(END) {
+                if line.trim_end() == PEM_FOOTER {
                     let cert = self.buf.clone();
                     self.buf.clear();
                     return Some(cert);
